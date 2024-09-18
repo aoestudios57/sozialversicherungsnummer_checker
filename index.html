@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sv-checker</title>
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+    <style>
+      .container {
+        max-width: 600px;
+        margin-top: 50px;
+      }
+      #qrcode {
+        width: 160px;
+        height: 160px;
+        margin-top: 15px;
+      }
+      canvas {
+        max-width: 100%;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="text-center">sv-checker</h1>
+      <form id="ssnForm">
+        <div class="form-group">
+          <label for="abc">Laufnummer</label>
+          <input
+            type="text"
+            class="form-control"
+            id="abc"
+            placeholder="123"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="d">Prüfziffer</label>
+          <input
+            type="text"
+            class="form-control"
+            id="d"
+            placeholder="8"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="efghij">Geburtsdatum</label>
+          <input
+            type="text"
+            class="form-control"
+            id="efghij"
+            placeholder="456789"
+            required
+          />
+        </div>
+        <button type="submit" id="button" class="btn btn-primary">
+          Prüfen
+        </button>
+      </form>
+      <div class="mt-3">
+        <h3 id="ergebnisanzeige"></h3>
+      </div>
+      <img id="qrpic" />
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      document
+        .getElementById("ssnForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const abc = document.getElementById("abc").value;
+          const d = parseInt(document.getElementById("d").value, 10);
+          const efghij = document.getElementById("efghij").value;
+          const gewicht = [3, 7, 9, 5, 8, 4, 2, 1, 6];
+
+          let ergebnis = 0;
+          for (let i = 0; i < abc.length; i++) {
+            ergebnis += parseInt(abc[i]) * gewicht[i];
+          }
+          for (let i = 0; i < efghij.length; i++) {
+            if (i + abc.length < gewicht.length) {
+              ergebnis += parseInt(efghij[i]) * gewicht[i + abc.length];
+            }
+          }
+
+          const totalergebnis = ergebnis % 11;
+          const resultElement = document.getElementById("ergebnisanzeige");
+          let resultText = "";
+
+          if (totalergebnis === d) {
+            resultText = `stark vallah richtig diese : ${totalergebnis}`;
+            resultElement.textContent = resultText;
+            resultElement.className = "text-success";
+
+            QRCode.toDataURL("richtig").then((dataUrl) => {
+              console.log(dataUrl);
+              qrpic.src = dataUrl;
+            });
+          } else {
+            resultText = `vallah falsche ja : ${totalergebnis}`;
+            resultElement.textContent = resultText;
+            resultElement.className = "text-danger";
+            QRCode.toDataURL("falsch").then((dataUrl) => {
+              console.log(dataUrl);
+              qrpic.src = dataUrl;
+            });
+          }
+        });
+    </script>
+  </body>
+</html>
